@@ -40,21 +40,18 @@ color: #FF9900;
 <span style="font-size: 18px; line-height: 1.5em;">Georgia Tech</span>
 <hr>
 
-Please see <a href="http://vision.cs.utexas.edu/projects/adapted_attributes/">this</a> for an example of how to lay out the various details of your project. You may need to provide more details than this, beause you will not be submitting an associated paper to accompany the webpage. So the page should be self-contained
-
 <!-- Goal -->
-<h3>Abstract</h3>
+<h3>1. Problem Statement</h3>
 
-One or two sentences on the motivation behind the problem you are solving. One or two sentences describing the approach you took. One or two sentences on the main result you obtained.
+The goal of the project is to create a 3D computer model of an object given multiple images of the object from known world positions. The user will provide an object and place it inside of a controlled rig, which will allow the camera to take pictures of the object from known positions. The output will then be a set of 3D points and faces or edges that represent the object the user provided.
 <br><br>
 <!-- figure -->
-<h3>Teaser figure</h3>
-A figure that conveys the main idea behind the project or the main application being addressed.
+<h3>2. Approach</h3>
+The software system will be given a set of images of an object along with the corresponding vectors for the world position and orientation of the camera as the picture was taken. These positions and orientations will be controlled and collected by the use of a rig, which will hold the camera at a fixed distance and angle and allow the camera to revolve about an axis at this distance. The rig will be surrounded by a white enclosure without any texture to provide a consistent background. To use the system, the user will place an object inside the rig, centered about the rotation axis, and then take a set of images at each of the predefined positions.
 <br><br>
-<!-- Main Illustrative Figure -->
-<div style="text-align: center;">
-<img style="height: 200px;" alt="" src="mainfig.png">
-</div>
+The software will take in this set of images, position vectors, and orientation vectors. For pairs of images, the system will perform feature detection and matching between the images to find correspondences. The system will then use stereo matching with the correspondences and camera position data to find the 3D world positions of each of the features. After a point cloud of the object is created, our system will then perform some post-processing on the point cloud using edge detection algorithms on the original images to determine which of the points in the set are connected to form edges and faces in the object.
+<br><br>
+The output will then be a set of 3D points and faces or edges that represent the object the user provided. This set of points and faces can then possibly be rendered using graphics software or a game engine.
 
 <br><br>
 <!-- Introduction -->
@@ -63,34 +60,73 @@ Motivation behind the problem you are solving, what applications it has, any bri
 
 <br><br>
 <!-- Approach -->
-<h3>Approach</h3>
-Describe very clearly and systematically your approach to solve the problem. Tell us exactly what existing implementations you used to build your system. Tell us what obstacles you faced and how you addressed them. Justify any design choices or judgment calls you made in your approach.
+<h3>3. Experiments and Results</h3>
+<h4>3.1 System setup</h4>
+There are 4 main steps that will need to be created for the system to be operational.
+<ol>
+<li>Create the camera rig and perform image collection of an object</li>
+<li>Perform feature detection and matching</li>
+<li> stereo matching to determine 3D world positions of features</li>
+<li>Run an edge detection algorithm to determine edges between feature points</li>
+</ol>
+<h4>3.2 Implementation</h4>
+In order to complete this project, we will implement some of the functionality ourselves and use functionality from pre-existing code for other parts. For many of the well established algorithms, we will use functions from the OpenCV library. We will use it for feature detection, feature matching, and edge detection algorithms. The parts of the project that we will implement ourselves are building the camera rig and performing image collection of objects, performing stereo matching of corresponding features given camera world positions and orientation to determine 3D world positions of features, and an algorithm to determine relevant edges between features from the point set to create an edge set for the object.
 
+<h4>3.3 Data Usage and Collection</h4>
+We plan to collect our own data for most of this project. We will do this by building a camera rig to be able to accurately move our camera around an object so we know precisely the location and orientation that each image was taken from. The more accurate we can know the camera position, the better the system will perform.
+The assumptions for data collection are as follows:
+<ul>
+<li>The rig is encapsulated by a smooth white background.</li>
+<li>Lighting is consistent.</li>
+<li>The rig does not produce shadows in field of view of the camera.</li>
+</ul>
+
+The data collection process for any given object will be as follows:
+<ol>
+<li>Place object within rig such that it is fully visible at all possible camera positions.</li>
+<li>Take a picture and rotate the camera by 10 degrees. Repeat this for 3 full revolutions.</li>
+</ol>
+
+The data acquired will not need any labeling or processing. It will be used directly for feature extraction and edge detection. Control experiments used to test system components as described in 3.4 will involve the use of grid paper and a cube. These will have few strictly designated features, such as printed points on the paper and the vertices of the cube, which can be identified manually.
+
+<h4>3.4 Planned Experiments</h4>
+To evaluate system performance during development, we will run a number of experiments to test individual components of the system before characterizing our system as a whole.
 <br><br>
-<!-- Results -->
-<h3>Experiments and results</h3>
-Provide details about the experimental set up (number of images/videos, number of datasets you experimented with, train/test split if you used machine learning algorithms, etc.). Describe the evaluation metrics you used to evaluate how well your approach is working. Include clear figures and tables, as well as illustrative qualitative examples if appropriate. Be sure to include obvious baselines to see if your approach is doing better than a naive approach (e.g. for classification accuracy, how well would a classifier do that made random decisions?). Also discuss any parameters of your algorithms, and tell us how you set the values of those parameters. You can also show us how the performance varies as you change those parameter values. Be sure to discuss any trends you see in your results, and explain why these trends make sense. Are the results as expected? Why?
+The component tests should reveal information about uncertain system characteristics such as:
+<ul>
+<li>Ideal feature scale for detection</li>
+<li>Effect of image angle on object</li>
+<li>The limits of geometry types that can be properly extracted</li>
+<li>Influence of colors and textures on detected features and edges</li>
+</ul>
+We predict that the experiments will show that the approach difficulty will increase with more complex geometry and confounding factors which make relevant edges and vertices harder to detect. For example, drastic changes in color on a planar surface may cause false detection of vertices, while curved surfaces be difficult to reconstruct due to their lack of vertices.
 
+<h5>3.4.1 Feature extraction & Edge detection</h5>
+The first component of the system to test will be feature extraction and edge detection. Tests will be performed in graduating levels, and will be done to characterize system parameters.
 <br><br>
-
-<!-- Main Results Figure -->
-<div style="text-align: center;">
-<img style="height: 300px;" alt="" src="results.png">
-</div>
+Initial tests will use grid paper and a simple 3D cube, using images taken from different angles and distances against a white background to determine the best distance and angle for the camera rig. The criteria to determine ‘best’ for feature detection will be the counting of correctly matched features (points/vertices) as well as spurious or dropped features. Edge criteria will similarly be determined by the counting of correctly matched edges and spurious or dropped edges.
 <br><br>
+Afterwards, tests on more complicated geometries and surfaces will be performed to determine the extent of object variety the approach will work on. Possible categories include:
+<ul>
+<li>Rectangular prism (ex: Rubik’s cube)</li>
+<li>Round (ex: ping-pong ball)</li>
+<li>Cylindrical (ex: pen)</li>
+<li>Concave facets/cavities (ex: cup)</li>
+<li>Varying surface reflection, absorption, and transparency (ex: water bottle)</li>
+<li>Varying colors and textures</li>
+<li>Objects of varying scale</li>
+</ul>
 
-<!-- Results -->
-<h3>Qualitative results</h3>
-Show several visual examples of inputs/outputs of your system (success cases and failures) that help us better understand your approach.
+<h5>3.4.2 Stereo matching</h5>
+The second component of the system will be testing stereo matching and its ability to determine the 3D coordinate of a given feature. Similar to section 3.4.1, tests will be performed in graduating levels.
 <br><br>
-
-<!-- Main Results Figure -->
-<div style="text-align: center;">
-<img style="height: 300px;" alt="" src="qual_results.png">
-</div>
+Initial tests will use extracted features on grid paper to determine the accuracy of point detection in 3D space, and consistency over multiple image pairs at known positions. Specifically, the errors in positions of determined points relative to each other will be quantified as a measure of accuracy due to the difficulty of measuring the actual position of the object in a defined global frame in each experiment.
 <br><br>
+The tests will progress from using grid paper to a 3D cube, and then to more complicated geometries as described in section 3.4.1.
+<br><br>
+Finally, we will test the entire system using various objects. As in the other experimental sections, the objects will gradually increase in complexity, starting from grid paper and a cube. If the system works well with those objects, we will test it on objects with more complex geometry or rounded surfaces such as a water bottle or coffee mug.
 
-
+<h4>3.5 Success Criteria</h4>
 
 
   <hr>
