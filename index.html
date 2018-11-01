@@ -87,6 +87,7 @@ Features are then matched pairwise between two images using euclidean distance, 
 <h3>Experiments and results</h3>
 <h4>System hardware</h4>
 Fig. 3 displays the camera rig. A webcam (Logitech HD C615) is used for imaging. The webcam is attached to a rotating ¼” thick laser-cut acrylic red bar. The attachment point is adjustable, and the webcam can slide closer to or further away from the rotation axis (Fig. 3b). The rotating bar is marked with 1 degree tick marks (Fig. 3c). The rotating camera assembly is mounted on aluminum brackets (80-20 12in -18in).
+<br><br>
 Measured frame of the camera is shown in Fig. 3d. The distance from the center of the webcam lens to the axis of rotation was fixed at 31.5 cm. The azimuthal angle of the camera is adjustable, and was fixed at a measured angle of 39 degrees. The height measured from the center of the webcam lens to the object platform was fixed at 25.5cm.
 
 <div style="text-align: center;">
@@ -99,6 +100,7 @@ The camera is set to acquire at a resolution of 1920x1080. A calibration sheet i
 
 <h4>Feature extraction tests</h4>
 Multiple feature extraction methods were tested to determine which technique gave the most relevant points for 3D reconstruction. Corners were extracted using the Harris corner detected implemented in OpenCV. However, this resulted in corners being placed in overlapping areas. To solve this problem, the image is divided up into discrete bins, and any corners that are close enough together are lumped into a single bin. Figure 2 shows the resulting corners, which presents fewer noisy corners.     SURF features were extracted using the OpenCV implementation of SURF, as shown in Figure 2.
+<br><br>
 However, there are two problems encountered with the current approach. The first is that the features identified are not necessarily unique, and are therefore difficult to match. Note in Figure 4, the grid points are improperly matched, since the points on the grid are nearly identical. This issue occurs even on different geometry; improperly matched points are also present on the metal beam. The other problem is that the number of features detected with both approaches is low - there are few identified points, and therefore the resulting point cloud would be sparse. Additionally, some corners are not detected at all, such as the corners of the cardboard boxes.
 
 <div style="text-align: center;">
