@@ -111,3 +111,28 @@ def getImageStack(directory):
         imageStack.append(cv2.imread(imname))
 
     return imageStack
+
+
+def createCubeCorners(v, s):
+    # given the minima corner of a cube and a side length in mm, returns a 2D numpy array of the 8 corners of the cube
+    #
+    # ---- Inputs ----------------------------
+    # v = cube corner closest to origin
+    # s = cube side length in mm
+    #
+    # ----- Outputs ---------------------------
+    # corners = numpy array containing the 8 corners of the cube.
+    #
+    #
+    corners = []
+    corners.append(v)
+    corners.append([v[0] + s, v[1] + s, v[2]])
+    corners.append([v[0] + s, v[1], v[2]])
+    corners.append([v[0], v[1] + s, v[2]])
+    corners.append([v[0], v[1], v[2] + s])
+    corners.append([v[0] + s, v[1] + s, v[2] + s])
+    corners.append([v[0] + s, v[1], v[2] + s])
+    corners.append([v[0], v[1] + s, v[2] + s])
+
+    corners = np.array(corners)
+    return corners
