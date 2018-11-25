@@ -117,7 +117,7 @@ def createCubeCorners(v, s):
     # given the minima corner of a cube and a side length in mm, returns a 2D numpy array of the 8 corners of the cube
     #
     # ---- Inputs ----------------------------
-    # v = cube corner closest to origin
+    # v = cube corner that has the minimum x, y, and -z coordinate
     # s = cube side length in mm
     #
     # ----- Outputs ---------------------------
@@ -129,10 +129,10 @@ def createCubeCorners(v, s):
     corners.append([v[0] + s, v[1] + s, v[2]])
     corners.append([v[0] + s, v[1], v[2]])
     corners.append([v[0], v[1] + s, v[2]])
-    corners.append([v[0], v[1], v[2] + s])
-    corners.append([v[0] + s, v[1] + s, v[2] + s])
-    corners.append([v[0] + s, v[1], v[2] + s])
-    corners.append([v[0], v[1] + s, v[2] + s])
+    corners.append([v[0], v[1], v[2] - s])
+    corners.append([v[0] + s, v[1] + s, v[2] - s])
+    corners.append([v[0] + s, v[1], v[2] - s])
+    corners.append([v[0], v[1] + s, v[2] - s])
 
     corners = np.array(corners)
     return corners
