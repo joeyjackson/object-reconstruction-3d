@@ -103,7 +103,7 @@ def getImageStack(directory):
     # imageStack = a size N list that contains all the jpg images contained within the folder
     #
     #
-    imnames = glob.glob(directory + '\*.jpg')  # get all calibration image files
+    imnames = glob.glob(directory + '/*.jpg')  # get all calibration image files
     imnames.sort()  # sort into numerical order
 
     imageStack = []
