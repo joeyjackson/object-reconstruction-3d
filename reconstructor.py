@@ -8,7 +8,7 @@ import pickle
 
 class Reconstructor:
 
-    def __init__(self, params, angle, imgstack):
+    def __init__(self, params, angle, imgstack, init_cube):
         self.cam_mtx = params[0]  # camera matrix
         self.cam_dist = params[1]  # camera distortion
         self.cam_pos = params[2]  # camera position
@@ -22,6 +22,7 @@ class Reconstructor:
             self.masks.append(segment.segment(img))  # get binary silhouette of foreground
 
         self.cubes = []  # a list of cubes corner points. may not be needed
+        self.cubes.append(init_cube)
 
     def projectPoints(self, points, angle):
 
@@ -55,7 +56,7 @@ class Reconstructor:
     def cubeIntersect(self, cube):
         imsz = (self.imsize[0], self.imsize[1])
 
-        corners = utils.createCubeCorners(cube[0], cube[1])  # create 3D corners of the cube from the corner and size
+        corners = utils.createCubeCorners(cube)  # create 3D corners of the cube from the corner and size
         all_view_pts = self.projectPointsToAllViews(corners)  # project into every view angle
 
         istatus = []  # intersection status list
@@ -73,6 +74,24 @@ class Reconstructor:
             return 2  # this cube is completely internal
         else:
             return 1  # this cube is partially intersecting
+
+    def octTree(self, cube, depth, limit):
+        intersect = self.cubeIntersect(cube)
+        if intersect == 2:
+            return [cube]
+
+        if intersect == 0:
+            return []
+
+        if depth >= limit - 1:
+            return [cube]
+        else:
+            octcubes = utils.cubeOctsect(cube)
+            outcubes = []
+            for newcube in octcubes:
+                outcubes = outcubes + self.octTree(newcube, depth+1, limit)
+
+            return outcubes
 
     def save(self, fname):
         pickle.dump(self, open(fname+'.obj', 'wb'))

@@ -143,20 +143,21 @@ def createCubeCorners(cube):
     corners = np.array(corners)
     return corners
 
+
 def cubeOctsect(cube):
-        c = cube[0]
-        sz = cube[1]
+    c = cube[0]
+    sz = cube[1]
 
-        newsz = sz/2
+    newsz = sz/2
 
-        newcubes = []
-        newcubes.append((c, newsz))
-        newcubes.append(((c[0]+newsz, c[1], c[2]), newsz))
-        newcubes.append(((c[0], c[1]+newsz, c[2]), newsz))
-        newcubes.append(((c[0] + newsz, c[1]+newsz, c[2]), newsz))
-        newcubes.append(((c[0], c[1], c[2]-newsz), newsz))
-        newcubes.append(((c[0] + newsz, c[1], c[2]-newsz), newsz))
-        newcubes.append(((c[0], c[1] + newsz, c[2]-newsz), newsz))
-        newcubes.append(((c[0] + newsz, c[1] + newsz, c[2]-newsz), newsz))
+    newcubes = []
+    newcubes.append((c, newsz))
+    newcubes.append(((c[0]+newsz, c[1], c[2]), newsz))
+    newcubes.append(((c[0], c[1]+newsz, c[2]), newsz))
+    newcubes.append(((c[0] + newsz, c[1]+newsz, c[2]), newsz))
+    newcubes.append(((c[0], c[1], c[2]-newsz), newsz))
+    newcubes.append(((c[0] + newsz, c[1], c[2]-newsz), newsz))
+    newcubes.append(((c[0], c[1] + newsz, c[2]-newsz), newsz))
+    newcubes.append(((c[0] + newsz, c[1] + newsz, c[2]-newsz), newsz))
 
-        return newcubes
+    return newcubes
