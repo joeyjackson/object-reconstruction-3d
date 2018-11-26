@@ -19,7 +19,7 @@ cube = np.array([[30, 30, 0],
                  [0, 0, -30]])
 '''
 cube = np.array([[30, 30, 0],
-                 [0,0,0],
+                [0, 0, 0],
                 [-30, 30, 0],
                 [-30, -30, 0],
                 [30, -30, 0],
@@ -27,8 +27,6 @@ cube = np.array([[30, 30, 0],
                 [-30, 30, -60],
                 [-30, -30, -60],
                 [30, -30, -60]], np.float32)
-
-
 
 img = cv2.imread('cal/Calibrator01.jpg')
 
@@ -52,7 +50,8 @@ for angle in range(0, 360, 1):
     for pts in newpt:
         cv2.circle(img2, tuple(pts[0]), 3, (0, 0, 255), 2)
 
-    cv2.imshow('img', img2)
+    show_im = np.transpose(cv2.resize(img2, (int(img2.shape[1] / 2), int(img2.shape[0] / 2))), (0, 1, 2))
+    cv2.imshow('img', show_im)
     #video.write(img2)
     key = cv2.waitKey(1)
 
