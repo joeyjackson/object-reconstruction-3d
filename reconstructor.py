@@ -4,6 +4,9 @@ import segment
 import hull
 import numpy as np
 import pickle
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
 
 
 class Reconstructor:
@@ -21,8 +24,8 @@ class Reconstructor:
         for img in imgstack:
             self.masks.append(segment.segment(img))  # get binary silhouette of foreground
 
-        self.cubes = []  # a list of cubes corner points. may not be needed
-        self.cubes.append(init_cube)
+        self.init_cube = init_cube
+        self.model = []
 
     def projectPoints(self, points, angle):
 
@@ -41,10 +44,10 @@ class Reconstructor:
 
         return viewpts
 
-    def intersectStatus(self, bhull, bview, tolerance=0.02):
+    def intersectStatus(self, bhull, bview, tolerance=0.025):
         hullct = np.count_nonzero(bhull)  # count hull area
 
-        intersect = np.logical_and(bhull,bview)  # overlapping region
+        intersect = np.logical_and(bhull, bview)  # overlapping region
         ict = np.count_nonzero(intersect)  # count intersection area
         if ict <= hullct*tolerance:
             return 0  # the region and the view are not intersecting
@@ -83,15 +86,61 @@ class Reconstructor:
         if intersect == 0:
             return []
 
-        if depth >= limit - 1:
+        if depth >= limit:
             return [cube]
         else:
             octcubes = utils.cubeOctsect(cube)
             outcubes = []
+
             for newcube in octcubes:
                 outcubes = outcubes + self.octTree(newcube, depth+1, limit)
 
             return outcubes
+
+    def reconstruct(self, limit):
+        if limit == 0:
+            return []
+
+        model = self.octTree(self.init_cube, 0, limit)
+        self.model = model
+        return model
+
+    def refine(self, addLevel):
+        if addLevel == 0:
+            return self.model
+
+        model = []
+        for cube in self.model:
+            model = model + self.octTree(cube, 0, addLevel)
+
+        self.model = model
+        return model
+
+    def drawModel(self):
+        figure = plt.figure()
+        fig = figure.add_subplot(111, projection='3d')
+        fig.set_aspect('equal')
+        for cube in self.model:
+            verts = utils.createCubeCorners(cube)
+            verts[:, 2] = -verts[:, 2]
+
+            edges = [ [verts[0], verts[1], verts[2], verts[3]],
+                      [verts[4], verts[5], verts[6], verts[7]],
+                      [verts[0], verts[1], verts[5], verts[4]],
+                      [verts[2], verts[3], verts[7], verts[6]],
+                      [verts[1], verts[2], verts[6], verts[5]],
+                      [verts[0], verts[3], verts[7], verts[4]]
+                      ]
+
+            #fig.scatter3D(verts[:, 0], verts[:, 1], verts[:, 2])
+            faces = Poly3DCollection(edges, linewidths=1, edgecolors='k')
+            faces.set_facecolor((0, 0, 1, 1))
+            fig.add_collection3d(faces)
+
+        fig.set_xlim(-60, 60)
+        fig.set_ylim(-60, 60)
+        fig.set_zlim(-20, 100)
+        plt.show()
 
     def save(self, fname):
         pickle.dump(self, open(fname+'.obj', 'wb'))

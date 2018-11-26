@@ -2,6 +2,7 @@ import numpy as np
 import glob
 import cv2
 
+
 def flipImage(img):
     # Flips an image such that it turns from landscape to portrait or vice versa
     #
@@ -132,12 +133,12 @@ def createCubeCorners(cube):
 
     corners = []
     corners.append([v[0], v[1], v[2]])
-    corners.append([v[0] + s, v[1] + s, v[2]])
     corners.append([v[0] + s, v[1], v[2]])
+    corners.append([v[0] + s, v[1] + s, v[2]])
     corners.append([v[0], v[1] + s, v[2]])
     corners.append([v[0], v[1], v[2] - s])
-    corners.append([v[0] + s, v[1] + s, v[2] - s])
     corners.append([v[0] + s, v[1], v[2] - s])
+    corners.append([v[0] + s, v[1] + s, v[2] - s])
     corners.append([v[0], v[1] + s, v[2] - s])
 
     corners = np.array(corners)
@@ -161,3 +162,5 @@ def cubeOctsect(cube):
     newcubes.append(((c[0] + newsz, c[1] + newsz, c[2]-newsz), newsz))
 
     return newcubes
+
+

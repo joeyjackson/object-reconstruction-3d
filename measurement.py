@@ -2,12 +2,12 @@ import cv2
 import utils
 
 # Name of the images to save as
-samplename = 'rubiks/rubiks'
+samplename = 'spray/spray'
 
 # Begin video capture
 cv2.namedWindow("Press ENTER to take measurement, ESC to exit.\n" +
                 "Rotate the turntable by a fixed angle for each  capture.")
-vc = cv2.VideoCapture(0)
+vc = cv2.VideoCapture(1)
 vc.set(3, 1920)
 vc.set(4, 1080)
 

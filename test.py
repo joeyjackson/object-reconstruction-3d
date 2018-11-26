@@ -8,11 +8,17 @@ import pickle
 img = np.zeros([1280, 800, 3], np.uint8)
 
 Recon = pickle.load(open('reconTest.obj', 'rb'))
-#Recon = Reconstructor(utils.loadCameraParameters(), 10, utils.getImageStack('rubiks'))
-#Recon.save('reconTest')
-subcube = utils.cubeOctsect(((-30, -30, 0), 60))
-cube = utils.createCubeCorners(subcube[0])
+#Recon = Reconstructor(utils.loadCameraParameters(), 10, utils.getImageStack('rubiks'), ((-40, -40, 0), 80))
+
+#Recon.init_cube = ((-50, -50, 0), 100)
+subcube = utils.cubeOctsect(((-40, -40, 0), 80))
+cube = utils.createCubeCorners(((-40, -40, 0), 80))
 cube2 = utils.createCubeCorners(((10, 10, 50), 30))
+
+#test = Recon.reconstruct(3)
+#Recon.refine(1)
+#Recon.save('reconTest')
+Recon.drawModel()
 
 
 projcubes = Recon.projectPointsToAllViews(cube)
@@ -24,9 +30,9 @@ for pcube in projcubes:
     pts2 = hull.createHullPoints(projcube2)
     _, binimg2 = hull.drawHull(pts2, (1000, 1000))
 
-    print(Recon.intersectStatus(binimg, binimg2))
+    #print(Recon.intersectStatus(binimg, binimg2))
     cv2.imshow('img', img)
-    key = cv2.waitKey(20)
+    key = cv2.waitKey(1)
     '''
     img2 = img.copy()
     pts = np.array([cv2.convexHull(pcube)[:, 0]])
