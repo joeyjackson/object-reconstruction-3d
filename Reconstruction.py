@@ -4,19 +4,19 @@ import pickle
 
 def main():
     calfile = 'Camera_Calibration.npz'
-    imfolder = 'spray'
+    imfolder = 'rubiks2'
     angle = 10
     initcube = ((-50, -50, 0), 100)
-    resolution = 1
+    resolution = 4
 
     save = True
-    savename = 'Spray3D'
+    savename = 'rubiksTilted'
 
-    load = True
+    load = False
 
     if load:
         Recon = pickle.load(open(savename + '.obj', 'rb'))
-        Recon.refine(0)
+        Recon.refine(2)
     else:
         Recon = Reconstructor(utils.loadCameraParameters(calfile), angle, utils.getImageStack(imfolder), initcube)
         Recon.reconstruct(resolution)
