@@ -3,8 +3,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 
-def segment(im_name):
-    im_orig = cv2.imread(im_name)
+def segment(im_orig):
     im = im_orig[300:1100, 100:700, :]
 
     # show_im = np.transpose(cv2.resize(im, (int(im.shape[1] / 2), int(im.shape[0] / 2))), (0, 1, 2))

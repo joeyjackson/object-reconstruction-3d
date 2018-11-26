@@ -26,6 +26,7 @@ def rotatePointsAboutZ(angle, points):
     # angle = the angle to rotate, in degrees
     # points = a list of lists of length 3, tuples of length 3, or a 2D numpy array where each row is length 3
     #          Each coordinate is described as x, y, z
+    #          [[x,y,z],[x,y,z]...]
     #
     # ----- Outputs ---------------------------
     # returns a 2D float32 numpy array where each row is the corresponding input coordinate rotated about Z by angle.
@@ -46,6 +47,7 @@ def rotatePointAboutZ(angle, point):
     # angle = the angle to rotate, in degrees
     # point = a coordinate which is a list of length 3, tuple of length 3, or a length 3 1D lumpy array
     #          Each coordinate is described as x, y, z
+    #          [x,y,z]
     #
     # ----- Outputs ---------------------------
     # returns a length 3 1D numpy array where each row is the corresponding input coordinate rotated about Z by angle.
@@ -71,14 +73,14 @@ def loadCameraParameters(fname='Camera_Calibration.npz'):
     # Get all camera properties needed for backprojection: essential matrix, distortion, position, rotation
     #
     # ---- Inputs ----------------------------
-    # fname = name of the npz file that holds the camera calibration properties
+    # fname = string name of the npz file that holds the camera calibration properties
     #
     # ----- Outputs ---------------------------
     # returns (cam_matrix, cam_distortion, pos, rot)
-    # cam_matrix = camera essential matrix
+    # cam_matrix = 3x3 camera essential matrix
     # cam_distortion = 5-variable distortion of the camera
-    # pos = Position of the camera as determined by the calibration
-    # rot = Rotation of the camera as determined by the calibration
+    # pos = 1x3 Position of the camera as determined by the calibration
+    # rot = 1x3 Rotation of the camera as determined by the calibration
     #
     #
     params = np.load(fname)
@@ -100,7 +102,7 @@ def getImageStack(directory):
     # directory = string of the folder name to look into. Do NOT use a '\'
     #
     # ----- Outputs ---------------------------
-    # imageStack = a size N list that contains all the jpg images contained within the folder
+    # imageStack = list of numpy images that contains all the jpg images contained within the folder
     #
     #
     imnames = glob.glob(directory + '/*.jpg')  # get all calibration image files
@@ -117,15 +119,16 @@ def createCubeCorners(v, s):
     # given the minima corner of a cube and a side length in mm, returns a 2D numpy array of the 8 corners of the cube
     #
     # ---- Inputs ----------------------------
-    # v = cube corner that has the minimum x, y, and -z coordinate
+    # v = 3D coordinate in a list, tuple, or numpy form [x,y,z]
+    #     of a cube corner that has the minimum x, y, and -z coordinate
     # s = cube side length in mm
     #
     # ----- Outputs ---------------------------
-    # corners = numpy array containing the 8 corners of the cube.
+    # corners = 8x3 numpy array containing the 8 corners of the cube.
     #
     #
     corners = []
-    corners.append(v)
+    corners.append([v[0], v[1], v[2]])
     corners.append([v[0] + s, v[1] + s, v[2]])
     corners.append([v[0] + s, v[1], v[2]])
     corners.append([v[0], v[1] + s, v[2]])
