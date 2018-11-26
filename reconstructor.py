@@ -3,6 +3,8 @@ import utils
 import segment
 import hull
 import numpy as np
+import pickle
+
 
 class Reconstructor:
 
@@ -17,8 +19,7 @@ class Reconstructor:
         self.masks = []  # binary foreground masks
         self.imsize = imgstack[0].shape
         for img in imgstack:
-            self.masks.append(None)
-            #self.masks.append(segment.segment(img))  # get binary silhouette of foreground
+            self.masks.append(segment.segment(img))  # get binary silhouette of foreground
 
         self.cubes = []  # a list of cubes corner points. may not be needed
 
@@ -70,10 +71,11 @@ class Reconstructor:
             return 0  # this cube is external
         elif np.all(istatus == 2):
             return 2  # this cube is completely internal
-        else
+        else:
             return 1  # this cube is partially intersecting
 
-
+    def save(self, fname):
+        pickle.dump(self, open(fname+'.obj', 'wb'))
 
 
 

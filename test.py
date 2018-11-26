@@ -3,20 +3,30 @@ import utils
 import numpy as np
 import cv2
 import hull
-
+import pickle
 
 img = np.zeros([1280, 800, 3], np.uint8)
 
+Recon = pickle.load(open('reconTest.obj', 'rb'))
+#Recon = Reconstructor(utils.loadCameraParameters(), 10, utils.getImageStack('rubiks'))
+#Recon.save('reconTest')
+subcube = utils.cubeOctsect(((-30, -30, 0), 60))
+cube = utils.createCubeCorners(subcube[0])
+cube2 = utils.createCubeCorners(((10, 10, 50), 30))
 
-Recon = Reconstructor(utils.loadCameraParameters(), 10, utils.getImageStack('rubiks'))
-cube = utils.createCubeCorners([-30, -30, 30], 60)
 
 projcubes = Recon.projectPointsToAllViews(cube)
+projcube2 = Recon.projectPoints(cube2, 10)
 for pcube in projcubes:
     pts = hull.createHullPoints(pcube)
-    img, binimg = hull.drawHull(pts, (100, 1000))
+    img, binimg = hull.drawHull(pts, (1000, 1000))
+
+    pts2 = hull.createHullPoints(projcube2)
+    _, binimg2 = hull.drawHull(pts2, (1000, 1000))
+
+    print(Recon.intersectStatus(binimg, binimg2))
     cv2.imshow('img', img)
-    key = cv2.waitKey(200)
+    key = cv2.waitKey(20)
     '''
     img2 = img.copy()
     pts = np.array([cv2.convexHull(pcube)[:, 0]])

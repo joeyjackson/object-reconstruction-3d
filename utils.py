@@ -115,7 +115,7 @@ def getImageStack(directory):
     return imageStack
 
 
-def createCubeCorners(v, s):
+def createCubeCorners(cube):
     # given the minima corner of a cube and a side length in mm, returns a 2D numpy array of the 8 corners of the cube
     #
     # ---- Inputs ----------------------------
@@ -127,6 +127,9 @@ def createCubeCorners(v, s):
     # corners = 8x3 numpy array containing the 8 corners of the cube.
     #
     #
+    v = cube[0]
+    s = cube[1]
+
     corners = []
     corners.append([v[0], v[1], v[2]])
     corners.append([v[0] + s, v[1] + s, v[2]])
@@ -139,3 +142,21 @@ def createCubeCorners(v, s):
 
     corners = np.array(corners)
     return corners
+
+def cubeOctsect(cube):
+        c = cube[0]
+        sz = cube[1]
+
+        newsz = sz/2
+
+        newcubes = []
+        newcubes.append((c, newsz))
+        newcubes.append(((c[0]+newsz, c[1], c[2]), newsz))
+        newcubes.append(((c[0], c[1]+newsz, c[2]), newsz))
+        newcubes.append(((c[0] + newsz, c[1]+newsz, c[2]), newsz))
+        newcubes.append(((c[0], c[1], c[2]-newsz), newsz))
+        newcubes.append(((c[0] + newsz, c[1], c[2]-newsz), newsz))
+        newcubes.append(((c[0], c[1] + newsz, c[2]-newsz), newsz))
+        newcubes.append(((c[0] + newsz, c[1] + newsz, c[2]-newsz), newsz))
+
+        return newcubes
