@@ -78,7 +78,7 @@ class Reconstructor:
     def octTree(self, cube, depth, limit):
         intersect = self.cubeIntersect(cube)
         if intersect == 2:
-            return [cube]
+            return []
 
         if intersect == 0:
             return []
