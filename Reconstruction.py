@@ -2,6 +2,7 @@ from reconstructor import Reconstructor
 import utils
 import pickle
 
+
 def main():
     calfile = 'Camera_Calibration.npz'
     imfolder = 'rubiks2'
@@ -24,9 +25,6 @@ def main():
     Recon.drawModel()
     if save:
         Recon.save(savename)
-
-
-
 
 if __name__ == '__main__':
     main()

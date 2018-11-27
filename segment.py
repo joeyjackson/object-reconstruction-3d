@@ -21,10 +21,14 @@ def segment(im_orig):
     full_im_seg = np.zeros(im_orig.shape)
     full_im_seg[300:1100, 100:700, :] = im_seg
 
-    mask = np.logical_or(
+    mask = np.zeros((full_im_seg.shape[:2]))
+    mask[np.logical_or(
         np.logical_or(full_im_seg[:, :, 0] > 0,
                         full_im_seg[:, :, 1] > 0),
-                         full_im_seg[:, :, 2] > 0)
+                         full_im_seg[:, :, 2] > 0)] = 255
+
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15)))
+    mask = mask > 0
     return mask
 
 
@@ -52,8 +56,8 @@ def k_means_segment(im, k):
 if __name__ == '__main__':
     for i in ['01', '07', '10', '11', '14', '32']:
         im_name = './rubiks/rubiks{}.jpg'.format(i)
-        im_seg = segment(im_name=im_name)
         im_real = cv2.imread(im_name)
+        im_seg = segment(im_real)
         plt.subplot(121)
         plt.imshow(cv2.cvtColor(im_real, cv2.COLOR_BGR2RGB))
         plt.subplot(122)
