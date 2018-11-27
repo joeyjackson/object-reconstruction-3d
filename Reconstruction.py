@@ -5,13 +5,13 @@ import pickle
 
 def main():
     calfile = 'Camera_Calibration.npz'
-    imfolder = 'rubiks2'
+    imfolder = 'spray'
     angle = 10
     initcube = ((-50, -50, 0), 100)
-    resolution = 4
+    resolution = 8
 
     save = True
-    savename = 'rubiksTilted'
+    savename = 'spray_resolution'
 
     load = False
 

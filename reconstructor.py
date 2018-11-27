@@ -142,6 +142,35 @@ class Reconstructor:
         fig.set_zlim(-20, 100)
         plt.show()
 
+    def rotateModel(self, savename):
+        figure = plt.figure()
+        fig = figure.add_subplot(111, projection='3d')
+        fig.set_aspect('equal')
+        for cube in self.model:
+            verts = utils.createCubeCorners(cube)
+            verts[:, 2] = -verts[:, 2]
+
+            edges = [ [verts[0], verts[1], verts[2], verts[3]],
+                      [verts[4], verts[5], verts[6], verts[7]],
+                      [verts[0], verts[1], verts[5], verts[4]],
+                      [verts[2], verts[3], verts[7], verts[6]],
+                      [verts[1], verts[2], verts[6], verts[5]],
+                      [verts[0], verts[3], verts[7], verts[4]]
+                      ]
+
+            #fig.scatter3D(verts[:, 0], verts[:, 1], verts[:, 2])
+            faces = Poly3DCollection(edges, linewidths=1, edgecolors='k')
+            faces.set_facecolor((0, 0, 1, 1))
+            fig.add_collection3d(faces)
+
+        fig.set_xlim(-60, 60)
+        fig.set_ylim(-60, 60)
+        fig.set_zlim(-20, 100)
+
+        for angle in range(0,360,5):
+            fig.view_init(elev=10., azim=angle)
+            plt.savefig(savename + "%d.png" % angle)
+
     def save(self, fname):
         pickle.dump(self, open(fname+'.obj', 'wb'))
 
