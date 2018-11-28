@@ -1,30 +1,34 @@
 from reconstructor import Reconstructor
 import utils
 import pickle
-
+import imageio
 
 def main():
     calfile = 'Camera_Calibration.npz'
-    imfolder = 'captures/mouse'
+    savename = 'spray'
+    imfolder = 'captures/' + savename + 'b'
+    tmpf = 'temp6'
     angle = 10
     initcube = ((-50, -50, 0), 100)
-    resolution = 5
 
-    save = True
-    savename = 'obj/mouse'
+    print(savename)
+    print(tmpf)
 
-    load = False
 
-    if load:
-        Recon = pickle.load(open(savename + '.obj', 'rb'))
-        Recon.refine(2)
-    else:
-        Recon = Reconstructor(utils.loadCameraParameters(calfile), angle, utils.getImageStack(imfolder), initcube)
-        Recon.reconstruct(resolution)
+    for res in range(0,13):
+        if res == 0:
+            Recon = Reconstructor(utils.loadCameraParameters(calfile), angle, utils.getImageStack(imfolder), initcube)
+            Recon.reconstruct(1)
+            print('init done')
+        else:
+            Recon = pickle.load(open('obj/' + savename + str(res - 1) + '.obj', 'rb'))
+            Recon.refine(1)
 
-    Recon.drawModel()
-    if save:
-        Recon.save(savename)
+        Recon.save('obj/' + savename + str(res))
+        Recon.rotateModel(tmpf + '/' + savename)
+        imgs = utils.getImageStack(tmpf)
+        imageio.mimsave(savename + str(res) + '.gif', imgs, duration=0.06)
+
 
 if __name__ == '__main__':
     main()

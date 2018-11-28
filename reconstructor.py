@@ -21,11 +21,21 @@ class Reconstructor:
 
         self.masks = []  # binary foreground masks
         self.imsize = imgstack[0].shape
+
+
         for img in imgstack:
-            self.masks.append(segment.segment(img))  # get binary silhouette of foreground
+            #self.masks.append(segment.segment(img))  # get binary silhouette of foreground
+            self.seg(img)
 
         self.init_cube = init_cube
         self.model = []
+
+    def seg(self, img):
+        #cv2.imshow('im',img)
+        #cv2.waitKey(200)
+        layer = img[:, :, 0]
+        #print(layer)
+        self.masks.append(layer > 0)
 
     def projectPoints(self, points, angle):
 

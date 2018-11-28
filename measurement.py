@@ -2,7 +2,7 @@ import cv2
 import utils
 
 # Name of the images to save as
-samplename = 'captures/mouse/mouse'
+samplename = 'captures/hex/hex'
 
 # Begin video capture
 cv2.namedWindow("Press ENTER to take measurement, ESC to exit.\n" +
