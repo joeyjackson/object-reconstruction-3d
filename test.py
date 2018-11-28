@@ -6,6 +6,18 @@ import hull
 import pickle
 
 
+Recon = pickle.load(open('obj/spray_resolution.obj', 'rb'))
+Recon.rotateModel('temp/test')
+
+imgs = utils.getImageStack('temp')
+
+video = cv2.VideoWriter('spray_3.avi', cv2.VideoWriter_fourcc(*'XVID'), 30, (640, 480))
+
+for img in imgs:
+    video.write(img)
+
+video.release()
+'''
 Recon = pickle.load(open('reconTest.obj', 'rb'))
 cube = utils.createCubeCorners(((-40, -40, -20), 10))
 
@@ -31,3 +43,4 @@ video.release()
 #    key = cv2.waitKey(20)
 #    if key == 27:
 #        break
+'''

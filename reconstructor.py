@@ -159,7 +159,7 @@ class Reconstructor:
                       ]
 
             #fig.scatter3D(verts[:, 0], verts[:, 1], verts[:, 2])
-            faces = Poly3DCollection(edges, linewidths=1, edgecolors='k')
+            faces = Poly3DCollection(edges, linewidths=0.1, edgecolors='k')
             faces.set_facecolor((0, 0, 1, 1))
             fig.add_collection3d(faces)
 
@@ -169,7 +169,7 @@ class Reconstructor:
 
         for angle in range(0,360,5):
             fig.view_init(elev=10., azim=angle)
-            plt.savefig(savename + "%d.png" % angle)
+            plt.savefig(savename + "%03d.png" % angle)
 
     def save(self, fname):
         pickle.dump(self, open(fname+'.obj', 'wb'))

@@ -11,7 +11,7 @@ def main():
     resolution = 8
 
     save = True
-    savename = 'spray_resolution'
+    savename = 'obj/spray_resolution'
 
     load = False
 
