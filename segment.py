@@ -15,6 +15,9 @@ def segment(im_orig):
 
     im = k_means_segment(im, 8)
 
+    #cv2.imshow('img',im)
+    #cv2.waitKey(200)
+    #r = (10, 10, 750, 1150)
     r = (10, 10, im.shape[1]-20, im.shape[0]-20)
     im_seg = grab_cut_segment(im, r)
 
@@ -28,6 +31,8 @@ def segment(im_orig):
                          full_im_seg[:, :, 2] > 0)] = 255
 
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15)))
+    #cv2.imshow('img',mask)
+    cv2.waitKey(200)
     mask = mask > 0
     return mask
 

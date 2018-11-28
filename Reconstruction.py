@@ -5,13 +5,13 @@ import pickle
 
 def main():
     calfile = 'Camera_Calibration.npz'
-    imfolder = 'spray'
+    imfolder = 'captures/mouse'
     angle = 10
     initcube = ((-50, -50, 0), 100)
-    resolution = 8
+    resolution = 5
 
     save = True
-    savename = 'obj/spray_resolution'
+    savename = 'obj/mouse'
 
     load = False
 

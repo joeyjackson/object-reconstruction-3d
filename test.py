@@ -6,12 +6,12 @@ import hull
 import pickle
 
 
-Recon = pickle.load(open('obj/spray_resolution.obj', 'rb'))
+Recon = pickle.load(open('obj/cube2.obj', 'rb'))
 Recon.rotateModel('temp/test')
 
 imgs = utils.getImageStack('temp')
 
-video = cv2.VideoWriter('spray_3.avi', cv2.VideoWriter_fourcc(*'XVID'), 30, (640, 480))
+video = cv2.VideoWriter('cube2.avi', cv2.VideoWriter_fourcc(*'XVID'), 30, (640, 480))
 
 for img in imgs:
     video.write(img)
