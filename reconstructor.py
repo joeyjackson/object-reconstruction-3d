@@ -22,9 +22,8 @@ class Reconstructor:
         self.masks = []  # binary foreground masks
         self.imsize = imgstack[0].shape
 
-
         for img in imgstack:
-            #self.masks.append(segment.segment(img))  # get binary silhouette of foreground
+            # self.masks.append(segment.segment(img))  # get binary silhouette of foreground
             self.seg(img)
 
         self.init_cube = init_cube
@@ -126,10 +125,36 @@ class Reconstructor:
         self.model = model
         return model
 
+    def dimensions(self):
+        dims = [None, None, None, None, None, None]
+        for cube in self.model:
+            p, s = cube
+            minx = p[0]
+            maxx = p[0] + s
+            miny = p[1]
+            maxy = p[1] + s
+            minz = p[2] - s
+            maxz = p[2]
+            if dims[0] is None or minx < dims[0]:
+                dims[0] = minx
+            if dims[1] is None or maxx > dims[1]:
+                dims[1] = maxx
+            if dims[2] is None or miny < dims[2]:
+                dims[2] = miny
+            if dims[3] is None or maxy > dims[3]:
+                dims[3] = maxy
+            if dims[4] is None or minz < dims[4]:
+                dims[4] = minz
+            if dims[5] is None or maxz > dims[5]:
+                dims[5] = maxz
+        dims = [int(dims[1] - dims[0]), int(dims[3] - dims[2]), int(dims[5] - dims[4])]
+        print('{}\t{}\t{}'.format(*dims))
+
     def drawModel(self):
         figure = plt.figure()
         fig = figure.add_subplot(111, projection='3d')
         fig.set_aspect('equal')
+
         for cube in self.model:
             verts = utils.createCubeCorners(cube)
             verts[:, 2] = -verts[:, 2]
@@ -151,6 +176,7 @@ class Reconstructor:
         fig.set_ylim(-60, 60)
         fig.set_zlim(-20, 100)
         plt.show()
+
 
     def rotateModel(self, savename):
         figure = plt.figure()
@@ -177,9 +203,10 @@ class Reconstructor:
         fig.set_ylim(-60, 60)
         fig.set_zlim(-20, 100)
 
-        for angle in range(0,360,5):
+        for angle in range(0, 360, 5):
             fig.view_init(elev=10., azim=angle)
             plt.savefig(savename + "%03d.png" % angle)
+
 
     def save(self, fname):
         pickle.dump(self, open(fname+'.obj', 'wb'))

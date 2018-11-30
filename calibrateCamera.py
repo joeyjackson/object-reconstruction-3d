@@ -49,6 +49,7 @@ def calibrate(calibration_directory='cal', scale=12, dtheta=10, cal_dim=(9, 6),
             cv2.drawChessboardCorners(imcol, (9, 6), corner_pts, ret)  # display corners and show them to the user
             show_im = np.transpose(cv2.resize(imcol, (int(imcol.shape[1] / 2), int(imcol.shape[0] / 2))), (0, 1, 2))
             cv2.imshow('img', show_im)
+            cv2.imwrite('./figures/calibration_grid_rotation/{}'.format(img_name[4:]), show_im)
             cv2.waitKey(200)
 
     _, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(d3_points, d2_points, img.shape[::-1], None, None)

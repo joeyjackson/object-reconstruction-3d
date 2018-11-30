@@ -59,13 +59,13 @@ def k_means_segment(im, k):
 
 
 if __name__ == '__main__':
-    for i in ['01', '07', '10', '11', '14', '32']:
-        im_name = './rubiks/rubiks{}.jpg'.format(i)
+    for i in ['18']:
+        im_name = './captures/hex/hex{}.jpg'.format(i)
         im_real = cv2.imread(im_name)
         im_seg = segment(im_real)
         plt.subplot(121)
         plt.imshow(cv2.cvtColor(im_real, cv2.COLOR_BGR2RGB))
         plt.subplot(122)
         plt.imshow(im_seg, cmap='Greys_r')
-        # plt.savefig('fig{}'.format(i))
+        plt.savefig('hex_seg_fig{}'.format(i))
         plt.show()

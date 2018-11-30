@@ -3,9 +3,10 @@ import utils
 import pickle
 import imageio
 
+
 def main():
     calfile = 'Camera_Calibration.npz'
-    savename = 'spray'
+    savename = 'rubiks2'
     imfolder = 'captures/' + savename + 'b'
     tmpf = 'temp6'
     angle = 10
@@ -14,8 +15,7 @@ def main():
     print(savename)
     print(tmpf)
 
-
-    for res in range(0,13):
+    for res in range(6, 7):
         if res == 0:
             Recon = Reconstructor(utils.loadCameraParameters(calfile), angle, utils.getImageStack(imfolder), initcube)
             Recon.reconstruct(1)
