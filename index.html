@@ -18,6 +18,9 @@ color: #3366CC;
 .data {
 color: #FF9900;
 }
+table, th, td {
+   border: 1px solid black;
+}
 </style>
 
 <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
@@ -45,87 +48,443 @@ Chris O’Brien - cobrien42
 
 <!-- Goal -->
 <h3>Abstract</h3>
-The goal of this project is to be able to generate 3D models of real world objects by applying various computer vision algorithms on a set of images taken of the object from known world positions. Creating representations of the physical world in computers is a useful tool for further processing in graphics and simulations, so our project describes a method to easily automate the construction of a model of the structure of a physical object in a form easily processed by other programs.
+The goal of this project is to be able to generate 3D models of real world objects by applying various computer vision algorithms on a set of images taken of the object from known world positions. Creating representations of the physical world in computers is a useful tool for further processing in graphics and simulations, so our project describes a method to easily automate the construction of a model of the structure of a physical object in a form easily processed by other programs. Our application is able to generate a collection of 3D space filling cubes at a specified resolution whose structure and configuration represents the real world object. Typically, the higher the resolution that application is set, the closer the model resembles the real world object when rendered.
+
 
 <br><br>
 <!-- figure -->
-<h3>Teaser figure</h3>
+<h3>Teaser Figure</h3>
 <br><br>
 <!-- Main Illustrative Figure -->
 <div style="text-align: center;">
-<img style="height: 150px;" alt="" src="res/teaser.png">
-<img style="height: 150px;" alt="" src="res/teaser2.png">
+<img style="height: 300px;" alt="" src="res/teaser.gif">
+<img style="height: 300px; border: 1px solid black" alt="" src="res/teaserb.gif">
 </div>
 
 <br><br>
 <!-- Introduction -->
 <h3>Introduction</h3>
-3D modeling of objects through vision is a powerful tool that can help decrease the effort needed to recreate models for use in graphics, vision, and engineering. Computer vision techniques can be applied to create 3D representations of objects through images using even basic equipment. The goal of the project is to create a 3D computer model of an object given multiple images of the object from known world positions and orientations. The user will provide an object and place it inside of a controlled camera rig, which will allow the camera to rotate about the object and take pictures from known positions. These images and coordinates can then be used as input to generate a 3D computer model of the object. The output will then be a set of 3D points and faces or edges that represent the object the user provided.
+3D modeling of objects through vision is a powerful tool that can help decrease the effort needed to recreate models for use in graphics, vision, and engineering. Computer vision techniques can be applied to create 3D representations of objects through images using even basic equipment. <br><br>
+There are currently many methods of 3D object reconstruction that generate models using  depth maps from active rangefinding equipment and special 3D cameras. However, the approach used in this application only requires a standard camera that will be calibrated in the location that the object images will be captured. <br><br>
+The goal of the project is to create a 3D computer model of an object given multiple images of the object from known world positions and orientations. A camera calibration matrix that is generated from calibrating the camera in a controlled rig will contain and facilitate the transfer of the position and orientation information within the application. To use the application, a user will provide an object and place it inside of the controlled camera rig, which will allow the object to rotate on a turntable in front of the camera and have pictures taken from known positions. This process will simulate the camera revolving around the object. These images and coordinates (as a calibration matrix) can then be used as input to generate a 3D computer model of the object. The output will then be a set of 3D cubes in world positions whose collective positioning represent the object the user provided. The general approach used is based off the approach described in Fitzgibbon, Cross, and Zisserman’s paper <a href="https://www.robots.ox.ac.uk/~vgg/publications/1998/Fitzgibbon98a/fitzgibbon98a.pdf">Automatic 3D Model Construction for Turn-Table Sequences</a>. However, our approach is slightly different whereas they used an uncalibrated camera and unknown turntable rotation angles, our application uses a camera that is pre calibrated at a set of known rotation angles of the turntable in order to very accurately convert between pixel and world coordinate systems. The full approach is described in the next section.
 
 
 <br><br>
 <!-- Approach -->
 <h3>Approach</h3>
-Objects are placed within an imaging rig on top of a flat white platform that allows a camera to rotate around it. The camera’s azimuthal angle and distance to the rotation axis are fixed. Pictures are taken at 10-degree intervals.
-<div style="text-align: center;">
-<img style="height: 150px;" alt="" src="res/Figure1.png"><br>
-<p>Figure 1. Vector display of camera orientation and position.</p>
+<h4>1. Rig </h4>
+The approach is centered around the use of an imaging rig for capturing precise and measured images of the object. The rig has a camera a fixed distance away from the object and a blue background behind the object, opposite the camera. The object sits on a blue turntable which can be rotated at measured 10 degree rotations allowing for a total of 36 images per object.
+<table>
+  <tr>
+    <td><img src="res/rig1.jpg" alt="" width="300"></td>
+    <td><img src="res/rig2.jpg" alt="" width="300"></td>
+  </tr>
+  <tr>
+    <td><img src="res/rig3.jpg" alt="" width="300"></td>
+    <td><img src="res/rig4.jpg" alt="" width="300""></td>
+  </tr>
+</table>
 </div>
 
-Features are then extracted from the image. Currently, the best method of feature extraction is still being determined. Corner detection using Harris corner detection and SURF feature extraction were performed using OpenCV implementations.
+<h4>2. Calibration </h4>
+The first step in the application pipeline is to calibrate the camera in order to generate the camera matrix for each of the known turntable rotation angles which can be used to convert between 3D world space coordinates and 2D pixel space coordinates. This is done by placing a chessboard pattern on the turntable and labeling known the 3D world positions of the grid corners in pixel space. This collection of mappings between 3D positions and pixel space can then be used to create a camera matrix which hold the intrinsic matrix, some distortion constants, a rotation matrix, and a translation matrix for that particular view. This process was then repeated for each 10 degree rotation of the turntable to get new camera matrices (and therefore rotation and translation matrices) which were stored for each turntable view. Most of this functionality was implemented using functions in the OpenCV library.
+<table>
+  <tr>
+    <td><img src="res/cal1.jpg" alt="" width="200"></td>
+    <td><img src="res/cal2.jpg" alt="" width="200"></td>
+    <td><img src="res/cal3.jpg" alt="" width="200"></td>
+  </tr>
+</table>
+<br>
 
-<div style="text-align: center;">
-<img style="height: 200px;" alt="" src="res/Figure2a.png">
-<img style="height: 200px;" alt="" src="res/Figure2b.png"><br>
-<p>Figure 2. Feature detection using Harris corner detection and SURF feature extraction.</p>
-</div>
+<h4>3. Object Segmentation</h4>
+After the camera was calibrated, the actual object was placed in the rig and pictures were taken of it for each 10 degree rotation of the turntable. The next step was to generate a binary segmentation of the object from the background in the picture. An arbitrary background would have been more difficult and less accurate to segment which is why the blue background was added to make segmentation easier. <br><br>
+Segmentation was done in a few steps. First the non-blue regions at the edges of the image were cropped away. Then a k-means segmentation was run on the image in order to decrease the variation in colors. Each pixel was replaced by the centroid of the nearest cluster after clustering the pixel values of the image into k clusters. After some experimentation, a k value of 8 seemed to produce the most accurate results for the objects we were testing. The final segmentation was produced by running the grabcut algorithm on this reduced color image. The grabcut algorithm essentially creates a graph out of the pixels of the image and then attempts to find a minimum average cut through the graph to divide it into 2 disconnected components. In this case, this meant the algorithm would cut away the blue segmented region around the object, leaving only the outline of the object as a binary image. Many of the binary images had some speckles in the middle of the body of the object so a closing filter was run on the binary image in order to fill in those holes for a more accurate segmentation.
 
-Features are then matched pairwise between two images using euclidean distance, and the essential matrix of the system is estimated. The known camera position and orientation (radius, rotation angle, azimuthal angle, height) can be used to triangulate the 3D position of the features relative to the cameras to generate a point cloud. However, difficulties in the generation of relevant features and the impact on the results are discussed, along with a proposed change of approach.
+<table>
+  <tr>
+    <td><img src="res/seg1.png" alt="" width="200"></td>
+    <td><img src="res/seg2.png" alt="" width="200"></td>
+    <td><img src="res/seg3.png" alt="" width="200"></td>
+  </tr>
+  <tr>
+    <td><img src="res/seg1.gif" alt="" width="200"></td>
+    <td><img src="res/seg2.gif" alt="" width="200"></td>
+    <td><img src="res/seg3.gif" alt="" width="200"></td>
+  </tr>
+</table>
+<br>
+
+<h4>4. Cube Projection and Overlap Testing</h4>
+The next step in the pipeline was to use a set of candidate cubes (hypothetical 3D points), which could possible be within the volume of the actual object, along with the camera matrices that were generated before to project these cubes into pixel space. This cube projection was then compared with the segmentation of the original object for overlap, and this process was repeated for each of the 36 views of the object on the turntable. If the cube overlapped the segmentation of the object in all views, then the cube is considered to be within the volume of the object and is saved, otherwise it is discarded.
+
+<table>
+  <tr>
+    <td><img src="res/proj1.gif" alt="" width="200"></td>
+    <td><img src="res/proj2.gif" alt="" width="200"></td>
+    <td><img src="res/proj3.gif" alt="" width="200"></td>
+    <td><img src="res/proj4.gif" alt="" width="200"></td>
+  </tr>
+
+</table>
+<br>
+
+<h4>5. Octree Recursion</h4>
+The final step of the process was to refine the search for candidate cubes. Instead of searching for cubes randomly throughout space, a recursive octree solution was used. At first, very large cubes were tested that filled up the sample space. At each step, if a cube was discarded, then it was ignored. However, each cube that still intersected the object was divided into 8 smaller cubes which were each tested again, further improving the granularity of the model. This process can be continued indefinitely until the model is as precise as desired.
+
+<table>
+  <tr>
+    <th></th>
+    <th>Rubix Cube</th>
+    <th>Hex Wrench Set</th>
+    <th>Spray Can</th>
+  </tr>
+  <tr>
+    <td>Actual</td>
+    <td><img src="res/cube.jpg" alt="" width="200"></td>
+    <td><img src="res/hex.jpg" alt="" width="200"></td>
+    <td><img src="res/spray.jpg" alt="" width="200"></td>
+  </tr>
+  <tr>
+    <td>Resolution 0</td>
+    <td><img src="res/cube_res0.gif" alt="" width="200"></td>
+    <td><img src="res/hex_res0.gif" alt="" width="200"></td>
+    <td><img src="res/spray_res0.gif" alt="" width="200"></td>
+  </tr>
+  <tr>
+    <td>Resolution 2</td>
+    <td><img src="res/cube_res2.gif" alt="" width="200"></td>
+    <td><img src="res/hex_res2.gif" alt="" width="200"></td>
+    <td><img src="res/spray_res2.gif" alt="" width="200"></td>
+  </tr>
+  <tr>
+    <td>Resolution 4</td>
+    <td><img src="res/cube_res4.gif" alt="" width="200"></td>
+    <td><img src="res/hex_res4.gif" alt="" width="200"></td>
+    <td><img src="res/spray_res4.gif" alt="" width="200"></td>
+  </tr>
+  <tr>
+    <td>Resolution 6</td>
+    <td><img src="res/cube_res6.gif" alt="" width="200"></td>
+    <td><img src="res/hex_res6.gif" alt="" width="200"></td>
+    <td><img src="res/spray_res6.gif" alt="" width="200"></td>
+  </tr>
+</table>
+<br>
 
 <br><br>
 <!-- Results -->
 <h3>Experiments and results</h3>
-<h4>System hardware</h4>
-Fig. 3 displays the camera rig. A webcam (Logitech HD C615) is used for imaging. The webcam is attached to a rotating ¼” thick laser-cut acrylic red bar. The attachment point is adjustable, and the webcam can slide closer to or further away from the rotation axis (Fig. 3b). The rotating bar is marked with 1 degree tick marks (Fig. 3c). The rotating camera assembly is mounted on aluminum brackets (80-20 12in -18in).
+For our experiments, we attempted to model five different objects to test the accuracy of the application. We modeled a rubik's cube, a rubik’s with some of the planes rotated, a spray bottle, 2 clothespins clipped together, and a set of hex wrenches. In order to to test the accuracy of the reconstruction for each of the objects, we measured the ground truth lengths of the objects in the x, y, and z dimensions and compared the percent error between the actual dimensions and those of the model at different resolutions.
 <br><br>
-Measured frame of the camera is shown in Fig. 3d. The distance from the center of the webcam lens to the axis of rotation was fixed at 31.5 cm. The azimuthal angle of the camera is adjustable, and was fixed at a measured angle of 39 degrees. The height measured from the center of the webcam lens to the object platform was fixed at 25.5cm.
+Ground Truth Dimensions:
+<ul>
+<li>Rubik’s Cube:  57mm x 57mm x 57mm</li>
+<li>Rubik’s Cube Rotated: 81mm x 81mm x 57mm</li>
+<li>Spray Can: 25mm x 25mm x 100mm</li>
+<li>Clothespins: 80mm x 20mm x 77mm</li>
+<li>Hex Wrenches: 46mm x 34mm x 96mm</li>
+</ul>
 
-<div style="text-align: center;">
-<img style="height: 400px;" alt="" src="res/Figure3.png"><br>
-<p>Figure 3. Setup of the imaging system. (a) Overview of system in use. (b) Adjustable camera distance slider. (c) 1-degree markings on angle adjustment. (d) Schematic of camera position.</p>
-</div>
+Model Dimensions (length x width x height):
+<table>
+    <tr>
+        <th></th>
+        <th>Resolution 0</th>
+        <th>Resolution 1</th>
+        <th>Resolution 2</th>
+        <th>Resolution 3</th>
+        <th>Resolution 4</th>
+        <th>Resolution 5</th>
+        <th>Resolution 6</th>
+    </tr>
+    <tr>
+        <td>Rubix</td>
+        <td>100mm x 100mm x 100mm</td>
+        <td>75mm x 100mm x 75mm</td>
+        <td>62mm x 75mm x 62mm</td>
+        <td>62mm x 62mm x 56mm</td>
+        <td>62mm x 59mm x 56mm</td>
+        <td>60mm x 59mm x 56mm</td>
+        <td>60mm x 59mm x 56mm</td>
+    </tr>
+    <tr>
+        <td>Rubix2</td>
+        <td>100mm x 100mm x 100mm</td>
+        <td>100mm x 100mm x 75mm</td>
+        <td>87mm x 87mm x 62mm</td>
+        <td>81mm x 81mm x 62mm</td>
+        <td>81mm x 81mm x 59mm</td>
+        <td>79mm x 79mm x 57mm</td>
+        <td>79mm x 79mm x 57mm</td>
+    </tr>
+    <tr>
+        <td>Spray</td>
+        <td>100mm x 100mm x 100mm</td>
+        <td>50mm x 50mm x 100mm</td>
+        <td>37mm x 37mm x 100mm</td>
+        <td>31mm x 25mm x 100mm</td>
+        <td>31mm x 25mm x 100mm</td>
+        <td>28mm x 25mm x 100mm</td>
+        <td>27mm x 25mm x 100mm</td>
+    </tr>
+    <tr>
+        <td>Pins</td>
+        <td>100mm x 100mm x 100mm</td>
+        <td>50mm x 100mm x 100mm</td>
+        <td>25mm x 87mm x 100mm</td>
+        <td>25mm x 81mm x 93mm</td>
+        <td>21mm x 78mm x 93mm</td>
+        <td>21mm x 76mm x 92mm</td>
+        <td>21mm x 76mm x 92mm</td>
+    </tr>
+    <tr>
+        <td>Hex Set</td>
+        <td>100mm x 100mm x 100mm</td>
+        <td>75mm x 50mm x 100mm</td>
+        <td>62mm x 37mm x 100mm</td>
+        <td>56mm x 31mm x 100mm</td>
+        <td>56mm x 31mm x 100mm</td>
+        <td>54mm x 28mm x 100mm</td>
+        <td>54mm x 26mm x 100mm</td>
+    </tr>
+</table><br>
 
-<h4>Experimental setup</h4>
-The camera is set to acquire at a resolution of 1920x1080. A calibration sheet is imaged to test feature extraction. The calibration sheet consists of a number of dot and line grids with a 1 cm spacing. The calibration sheet is centered underneath the rotation axis, flat on the object platform. Images are taken for different rotations of the camera arm, every 10 degrees, for a total of 36 images per trial. Consistent lighting was attempted by keeping the device in the same location with the same light sources for imaging.
+<b><u>Errors</u></b><br>
+Accuracy of the application was determined by calculating the percent error between actual and modeled object dimensions.<br>
+<u>X-Dimension</u>
+<table>
+    <tr>
+        <th></th>
+        <th>Resolution 0</th>
+        <th>Resolution 1</th>
+        <th>Resolution 2</th>
+        <th>Resolution 3</th>
+        <th>Resolution 4</th>
+        <th>Resolution 5</th>
+        <th>Resolution 6</th>
+    </tr>
+    <tr>
+        <td>Rubix</td>
+        <td>75.44</td>
+        <td>31.58</td>
+        <td>8.77</td>
+        <td>8.77</td>
+        <td>8.77</td>
+        <td>5.26</td>
+        <td>5.26</td>
+    </tr>
+    <tr>
+        <td>Rubix2</td>
+        <td>23.46</td>
+        <td>23.46</td>
+        <td>7.41</td>
+        <td>0.00</td>
+        <td>0.00</td>
+        <td>2.47</td>
+        <td>2.47</td>
+    </tr>
+    <tr>
+        <td>Spray</td>
+        <td>300.00</td>
+        <td>100.00</td>
+        <td>48.00</td>
+        <td>24.00</td>
+        <td>24.00</td>
+        <td>12.00</td>
+        <td>8.00</td>
+    </tr>
+    <tr>
+        <td>Pins</td>
+        <td>400.00</td>
+        <td>150.00</td>
+        <td>25.00</td>
+        <td>25.00</td>
+        <td>5.00</td>
+        <td>5.00</td>
+        <td>5.00</td>
+    </tr>
+    <tr>
+        <td>Hex Set</td>
+        <td>117.39</td>
+        <td>63.04</td>
+        <td>34.78</td>
+        <td>21.74</td>
+        <td>21.74</td>
+        <td>17.39</td>
+        <td>17.39</td>
+    </tr>
+</table>
+<img src="res/graph_x_error.png" alt="" width="500"><br><br>
 
-<h4>Feature extraction tests</h4>
-Multiple feature extraction methods were tested to determine which technique gave the most relevant points for 3D reconstruction. Corners were extracted using the Harris corner detected implemented in OpenCV. However, this resulted in corners being placed in overlapping areas. To solve this problem, the image is divided up into discrete bins, and any corners that are close enough together are lumped into a single bin. Figure 2 shows the resulting corners, which presents fewer noisy corners.     SURF features were extracted using the OpenCV implementation of SURF, as shown in Figure 2.
+<u>Y-Dimension</u>
+<table>
+    <tr>
+        <th></th>
+        <th>Resolution 0</th>
+        <th>Resolution 1</th>
+        <th>Resolution 2</th>
+        <th>Resolution 3</th>
+        <th>Resolution 4</th>
+        <th>Resolution 5</th>
+        <th>Resolution 6</th>
+    </tr>
+    <tr>
+        <td>Rubix</td>
+        <td>75.44</td>
+        <td>75.44</td>
+        <td>31.58</td>
+        <td>8.77</td>
+        <td>3.51</td>
+        <td>3.51</td>
+        <td>3.51</td>
+    </tr>
+    <tr>
+        <td>Rubix 2</td>
+        <td>23.46</td>
+        <td>23.46</td>
+        <td>7.41</td>
+        <td>0.00</td>
+        <td>0.00</td>
+        <td>2.47</td>
+        <td>2.47</td>
+    </tr>
+    <tr>
+        <td>Spray</td>
+        <td>300.00</td>
+        <td>100.00</td>
+        <td>48.00</td>
+        <td>0.00</td>
+        <td>0.00</td>
+        <td>0.00</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>Pins</td>
+        <td>25.00</td>
+        <td>25.00</td>
+        <td>8.75</td>
+        <td>1.25</td>
+        <td>2.50</td>
+        <td>5.00</td>
+        <td>5.00</td>
+    </tr>
+    <tr>
+        <td>Hex Set</td>
+        <td>194.12</td>
+        <td>47.06</td>
+        <td>8.82</td>
+        <td>8.82</td>
+        <td>8.82</td>
+        <td>17.65</td>
+        <td>23.53</td>
+    </tr>
+</table>
+<img src="res/graph_y_error.png" alt="" width="500"><br><br>
+
+<u>Z-Dimension</u>
+<table>
+    <tr>
+        <th></th>
+        <th>Resolution 0</th>
+        <th>Resolution 1</th>
+        <th>Resolution 2</th>
+        <th>Resolution 3</th>
+        <th>Resolution 4</th>
+        <th>Resolution 5</th>
+        <th>Resolution 6</th>
+    </tr>
+    <tr>
+        <td>Rubix</td>
+        <td>75.44</td>
+        <td>31.58</td>
+        <td>8.77</td>
+        <td>1.75</td>
+        <td>1.75</td>
+        <td>1.75</td>
+        <td>1.75</td>
+    </tr>
+    <tr>
+        <td>Rubix 2</td>
+        <td>75.44</td>
+        <td>31.58</td>
+        <td>8.77</td>
+        <td>8.77</td>
+        <td>3.51</td>
+        <td>0.00</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>Spray</td>
+        <td>0.00</td>
+        <td>0.00</td>
+        <td>0.00</td>
+        <td>0.00</td>
+        <td>0.00</td>
+        <td>0.00</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>Pins</td>
+        <td>29.87</td>
+        <td>29.87</td>
+        <td>29.87</td>
+        <td>20.78</td>
+        <td>20.78</td>
+        <td>19.48</td>
+        <td>19.48</td>
+    </tr>
+    <tr>
+        <td>Hex Set</td>
+        <td>4.17</td>
+        <td>4.17</td>
+        <td>4.17</td>
+        <td>4.17</td>
+        <td>4.17</td>
+        <td>4.17</td>
+        <td>4.17</td>
+    </tr>
+</table>
+<img src="res/graph_z_error.png" alt="" width="500"><br><br>
+As seen in these results, the accuracy improves as the resolution of the model is increased. However, increasing the resolution also exponentially increases the runtime of the program, so there is a tradeoff for the improved accuracy. In our experimentation, we found that a max resolution of 5 (at most 5 splits of a starting cube) provided the best results within a reasonable runtime. The charts above show how well the application reproduces measurements, but to see how well the shape of objects is reproduced, it is easier to observe a rendered model qualitatively as can be seen in the qualitative results section. The application performed well above our expectations with a generally very low error rate when a reasonable resolution was used.
 <br><br>
-However, there are two problems encountered with the current approach. The first is that the features identified are not necessarily unique, and are therefore difficult to match. Note in Figure 4, the grid points are improperly matched, since the points on the grid are nearly identical. This issue occurs even on different geometry; improperly matched points are also present on the metal beam. The other problem is that the number of features detected with both approaches is low - there are few identified points, and therefore the resulting point cloud would be sparse. Additionally, some corners are not detected at all, such as the corners of the cardboard boxes.
 
-<div style="text-align: center;">
-<img style="height: 200px;" alt="" src="res/Figure4.png"><br>
-<p>Figure 4. Corresponding feature matches using descriptor euclidean distance.</p></div>
-
-A dense point cloud would be better suited to producing an acceptable reconstruction. A number of possible solutions will be investigated. Because of the known constraints of the camera system position, it may be possible to apply spatial verification of feature matches to ensure that matched features do not move drastically compared to the 10-degree rotation of the camera. An alternative solution would be to characterize camera properties such as the FoV and spherical aberration, and use this data to project rays through each pixel from the camera’s current position. Similar to the Hough transform, a 3D bin space can be formed, and by projecting rays through each edge detected by the Canny filter through the bin space, the bins with many crossing rays can be identified as structures in 3D space as seen in figure 5.
-
-<div style="text-align: center;">
-<img style="height: 150px;" alt="" src="res/Figure5a.png">
-<img style="height: 150px;" alt="" src="res/Figure5b.png">
-<img style="height: 150px;" alt="" src="res/Figure5c.png"><br>
-<p>Figure 5. Voting in 3D Vector Space</p></div>
-
-<!-- Results -->
-<h3>Qualitative results</h3>
-Several results from feature extraction and feature matching are shown. Feature extraction using the Harris corner detector and SURF is shown in Figure 2. Feature correspondence using euclidean distance of the SURF descriptors is shown in Figure 4. The imaging setup was presented in Figure 3. Currently, a point cloud cannot be created due to the sparseness of the features and difficulty correctly pairing the features between the two images (Figure 4). As discussed previously in Section 4.3, the knowledge of the camera reference frame for each image will be valuable for future improvement of feature matching and point-cloud generation.
+<h3>Qualitative Results</h3>
+Here are a few example inputs and outputs of the application.
+<table>
+  <tr>
+    <td><img src="res/cube.gif" alt="" style="height: 300px;"></td>
+    <td><img src="res/cube_res6.gif" alt="" style="height: 300px;"></td>
+  </tr>
+  <tr>
+    <td><img src="res/cube2.gif" alt="" style="height: 300px;"></td>
+    <td><img src="res/cube2_res6.gif" alt="" style="height: 300px;"></td>
+  </tr>
+  <tr>
+    <td><img src="res/spray.gif" alt="" style="height: 300px;"></td>
+    <td><img src="res/spray_res6.gif" alt="" style="height: 300px;"></td>
+  </tr>
+  <tr>
+    <td><img src="res/pin.gif" alt="" style="height: 300px;"></td>
+    <td><img src="res/pin_res6.gif" alt="" style="height: 300px;"></td>
+  </tr>
+  <tr>
+    <td><img src="res/hex.gif" alt="" style="height: 300px;"></td>
+    <td><img src="res/hex_res6.gif" alt="" style="height: 300px;"></td>
+  </tr>
+</table>
+<br>
 
 <h3>Conclusion and Future Work</h3>
-The system for 3D reconstruction of an object given images from known camera frames is currently under development. The imaging rig has been constructed, and framework for feature extraction has been created, along with initial tests for feature matching. The future work of the project will focus on refining methods of feature detection and matching, as they are critical to the method of 3D point generation, regardless of method, such as ray-tracing or triangulation, discussed in section 4.3.
+Overall, this 3D reconstruction method performed fairly well for most of the tested objects. Clearly there are some issues (especially with the rubik’s cube example) where noisy or hard to segment images resulted in internal octree cubes being labeled as external, and as a result the 3D models were contained a large number of holes and rough edges that do not exist in the actual objects. These errors could potentially be solved in future work using better object segmentation algorithms, potentially with the help of machine and/or deep learning techniques. Even for objects that our project performed fairly well on the resulting 3D objects still contain many rough edges as a result of being formed by many small cubes. One topic that we would have liked to implement was octree smoothing similar to Marching Cubes algorithm provided by Lorenstein et al. Additionally, rather than only recreating the object’s shape, preserving color from the original object in the 3D model would be a topic that should be explored in future work.
+
 
 <h3>References</h3>
+Source Code: <a href="https://github.com/joeyjackson/object-reconstruction-3d/">https://github.com/joeyjackson/object-reconstruction-3d/</a>
+<br>
 OpenCV Library: <a href="https://github.com/opencv/opencv">https://github.com/opencv/opencv</a>
-
-
+<br>
+Automatic 3D Model Construction for Turn-Table Sequences: <a href="https://www.robots.ox.ac.uk/~vgg/publications/1998/Fitzgibbon98a/fitzgibbon98a.pdf">https://www.robots.ox.ac.uk/~vgg/publications/1998/Fitzgibbon98a/fitzgibbon98a.pdf</a>
 <br><br>
 
 
